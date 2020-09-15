@@ -13,7 +13,7 @@ exports.SignUp=(req,res)=>{
         }
         else{
             let count=Object.values(results[0]);
-            console.log(`count is equals to ${count}`);
+            console.log(`count is equals to ${count}`)
             if(count[0]>=1){
                 res.status(500).json("User Already Exists");
             }
@@ -135,7 +135,6 @@ exports.updateUsers=(req,res)=>{
         }
         else{
             let [fname,lname,gender,age,email,number,password]=Data;
-            console.log(fname);
             db.query(`UPDATE users SET firstName=?,lastName=?,gender=?,age=?,email=?,number=?,password=? where id=?`,
         [fname,
             lname,

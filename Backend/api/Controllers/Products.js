@@ -1,6 +1,6 @@
 const db = require('../Config/connection');
-const bcrypt= require('bcrypt');
-
+const fileUpload = require('express-fileupload');
+const path = require('path');
 
 // Add/Create a new product
 exports.createProduct = (req,res)=>{
@@ -8,10 +8,11 @@ exports.createProduct = (req,res)=>{
     // converting req.body which is an object into an array Data.    
     // 3 ways to do so object.keys(req.body),object.values(req.body),object.entries(req.body),
     let Data = Object.values(req.body);
-    console.log(Data);
+    
+    
     // Array Destructuring  
     let [name,price,image,description,quantity,catid,shortcode] = Data;
-    
+    console.log('Data', Data);
     
     /*above 2 steps are done to avoid
     firstName: req.body.first_name,
@@ -21,7 +22,8 @@ exports.createProduct = (req,res)=>{
     password:req.body.password,
     number : req.body.number
     */
-   
+
+
     db.query(`SELECT COUNT(pname) FROM products WHERE shortcode=?`,[shortcode],
     (err,results,feilds)=>{
         if(err){
@@ -107,7 +109,6 @@ exports.getProduct = (req,res)=>{
 exports.updateProduct = (req,res)=>{
     Data=Object.values(req.body);
     let [name,price,image,description,quantity,catid,shortcode] = Data;
-    // const hashedPassword =bcrypt.hash(password, 10);
     console.log(Data);
     db.query(`update products set pname=?,pprice=?,pimage=?,pdescription=?,pquantity=?,cid=?,shortcode=? where id=?`,
     [

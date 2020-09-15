@@ -1,22 +1,33 @@
 const express = require('express');
-const mysql = require('mysql');
 require ("dotenv").config();
 mysqlconnection = require('./api/Config/connection');
 const bodyparser = require('body-parser');
 const productsRoutes = require('./api/Routes/products');
 const usersRoutes = require('./api/Routes/users');
+const ordersRoutes = require('./api/Routes/orders');
+const fileUpload = require('express-fileupload');
+
 
 
 
 app=express();
-// port=3000;
+
+app.use(express.static('./public'));
+
 
 app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({
+    	   extended: true
+    	}))
 
+app.use(fileUpload());
 app.use("/products",productsRoutes);
 
 
 app.use("/users",usersRoutes);
+
+
+app.use("/orders",ordersRoutes);
 
 
 

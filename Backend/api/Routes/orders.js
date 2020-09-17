@@ -1,29 +1,34 @@
 const express = require("express");
 const Router = express.Router();
 const OrdersController = require('../Controllers/Orders');
-const multer= require("multer");
-
-Router.get("/",OrdersController.getOrders);
-
-Router.get("/:id",OrdersController.getOrder);
-
-Router.post("/",OrdersController.Order);
-
-Router.delete("/:id",OrdersController.delOrder);
-
-// API to get the list of all the customer who have purchased a particular item.
-Router.get("/users/:id",OrdersController.one);
-
-//API to get all products list purchased by a specific custom
-Router.get("/products/:id",OrdersController.two);
 
 
-
-// Router.get("/productlist",OrdersController.max);
-
-module.exports=Router;
+//get the list of most purchased products in descending order.
+Router.get("/productlist", OrdersController.max);
 
 
+//getting details of all the orders
+Router.get("/", OrdersController.getOrders);
 
 
+//get a particular order detail
+Router.get("/:id", OrdersController.getOrder);
 
+
+//placing an order
+Router.post("/", OrdersController.Order);
+
+
+//deleting a particular order detail
+Router.delete("/:id", OrdersController.delOrder);
+
+
+// get the list of all the customer who have purchased a particular item.
+Router.get("/users/:id", OrdersController.one);
+
+
+// get all products list purchased by a specific custom
+Router.get("/products/:id", OrdersController.two);
+
+
+module.exports = Router;                

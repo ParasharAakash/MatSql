@@ -1,158 +1,148 @@
 const db = require("../Config/connection");
 
-exports.getOrders=(req,res)=>{
+
+exports.getOrders = (req, res) => {
     db.query(" select * from orders ",
-    (err,results,fields)=> {
-        if(!err)
-        {
-            return  res.status(200).json({
-               results
-            });
-        }
-        else{
-            console.log(err);
-            return res.status(404).json({
-                success : 0,
-                message : results
-            })
-        }
-    })
+        (err, results, fields) => {
+            if (!err) {
+                return res.status(200).json({
+                    results
+                });
+            } else {
+                console.log(err);
+                return res.status(404).json({
+                    success: 0,
+                    message: results
+                })
+            }
+        })
 }
 
-exports.getOrder=(req,res)=>{
-    db.query("select * from orders where o_id=?",[req.params.id],
-    (err,results,fields)=>{
-        if(!err)
-        {
-            return  res.status(200).json({
-               results
-            });
-        }
-        else{
-            console.log(err);
-            return res.status(404).json({
-                success : 0,
-                message : results
-            })
-        }
-    })
+
+
+exports.getOrder = (req, res) => {
+    db.query("select * from orders where o_id=?", [req.params.id],
+        (err, results, fields) => {
+            if (!err) {
+                return res.status(200).json({
+                    results
+                });
+            } else {
+                console.log(err);
+                return res.status(404).json({
+                    success: 0,
+                    message: results
+                })
+            }
+        })
 }
 
-exports.Order=(req,res)=>{
-const Data=Object.values(req.body);
-console.log(Data);
-[u_id,p_id,quantity]=Data;
-db.query("select Count(o_id) from orders where u_id=? and p_id=?",
-[u_id,p_id],
-(err,results,feilds)=>{
-    if(err){
-        console.log(err);
-            return res.status(404).json({
-                success : 0,
-                message : results
-            })
-    }
-    else{
-        db.query("Insert into orders(u_id,p_id,quantity) values(?,?,?)",
-[u_id,p_id,quantity],
-(err,results,feilds)=>{
-    if(!err)
-    {
-        return  res.status(200).json({
-           results
+
+
+exports.Order = async (req, res) => {
+    try {
+        const Data = Object.values(req.body);
+        console.log(Data);
+        [u_id, p_id, quantity] = Data;
+        const result = await db.query("Insert into orders(u_id,p_id,quantity) values(?,?,?)", [u_id, p_id, quantity]);
+        console.log(result)
+        const product = await db.query("select pquantity from products where pid=?", [p_id]);
+        new_quantity = product[0].pquantity - quantity;
+        console.log("new_quantity",new_quantity);
+        if (new_quantity >= 0) {
+            await db.query("update products set pquantity=? where pid=?", [new_quantity, p_id]);
+            res.status(200).json(result);
+        }
+        else
+            res.send("Available Products are not Sufficient");
+    } catch (err) {
+        res.status(404).json({
+            err
         });
     }
-    else{
-        console.log(err);
-        return res.status(404).json({
-            success : 0,
-            message : results
+}
+
+
+
+exports.delOrder = async (req, res) => {
+   try{
+    let result = await db.query('select count(o_id) from orders where o_id=?',[req.params.id]);
+    const count = Object.values(result[0])[0]
+    if(count){
+       let result = await db.query('Delete from orders where o_id=?', [req.params.id])
+        res.status(200).json({
+            message : "User Deleted",
+            result
         })
     }
-})
-        }
-})
-
+    else{
+        res.status(400).send("This Order Doesn't Exist");
+    }
+   }
+   catch(err){
+       res.status(400).json({ err });
+   }
 }
 
-exports.delOrder=(req,res)=>{
-    db.query('Delete from orders where o_id=?',[req.params.id],
-    (err,results,feilds)=>{
-        if(err){
-            return err;
-        }
-        else{
-            return res.status(200).json("Order Deleted");
-        }
-    })
-}
 
-exports.one=(req,res)=>{
-    db.query("select distinct u_id from orders where p_id=?",[req.params.id],
-    (err,results,feilds)=>{
-        if(!err)
-    {   console.log(results)
-        // while(Object.keys(results)){
-            console.log(Object.values(results))
-        // }
-        return  res.status(200).json({
-            results
+
+exports.one = async (req, res) => {
+    try {
+        const result = await db.query("select distinct u_id from orders where p_id=?", [req.params.id]);
+        var abc = []
+        for (i of result) {
+            const result1 = await db.query("select * from users where id=?", [i.u_id])
+            console.log(result1[0])
+            abc.push(result1[0])
+        }
+        return res.json(abc);
+    } catch (err) {
+        res.status(404).json({
+            err
         });
     }
-    else{
-        console.log(err);
-        return res.status(404).json({
-            success : 0,
-            message : results
-      
-})
-    }
-})
+
 }
 
 
-exports.two=(req,res)=>{
-    db.query("select distinct p_id from orders where u_id=?",[req.params.id],
-    (err,results,feilds)=>{
-        if(err)
-    {   
-        return res.status(404).json({
-            success : 0,
-            message : results
+
+exports.two = async (req, res) => {
+    try {
+        const result = await db.query("select distinct p_id from orders where u_id=?", [req.params.id]);
+        var abc = []
+        for (i of result) {
+            const result1 = await db.query("select * from products where pid=?", [i.p_id])
+            console.log(result1[0])
+            abc.push(result1[0])
+        }
+        return res.json(abc);
+    } catch (err) {
+        res.status(404).json({
+            err
         });
     }
-    else{
-        console.log(results[0].p_id);
-        db.query("select * from products where pid=?",[results[0].p_id],
-        (err,results,feilds)=>{
-            if(err)
-            return err;
-            else{
-                return  res.status(200).json({
-                   results
+
+}
+
+exports.max = async (req, res) => {
+    try {
+        const result = await db.query("SELECT p_id FROM orders GROUP BY p_id  ORDER BY COUNT(quantity) DESC");
+        console.log('res', result)
+        var abc = []
+        for (i of result) {
+            const result1 = await db.query("select * from products where pid=?", [i.p_id])
+            console.log(result1[0])
+            abc.push(result1[0])
+        }
+        return res.status(200).json({
+            abc
+        });
+    } catch (err) {
+        return res.status(404).json({
+            success: 0,
+            message: err
         })
     }
-      
-})
-    }
-})
-}
 
-exports.max=(req,res)=>{
-    db.query("select p_id from orders order by quantity desc",
-    (err,results,fields)=> {
-        if(!err)
-        {
-            return  res.status(200).json({
-               results
-            });
-        }
-        else{
-            console.log(err);
-            return res.status(404).json({
-                success : 0,
-                message : results
-            })
-        }
-    })
+
 }

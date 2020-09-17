@@ -1,48 +1,27 @@
 const express = require("express");
 const Router = express.Router();
 const productController = require('../Controllers/Products');
-const multer= require("multer");
+const multer = require("multer");
 
 
-
-Router.get('/',productController.getProducts);
-
-
-Router.get('/:id',productController.getProduct);
+//details of all products
+Router.get('/', productController.getProducts);
 
 
-Router.put('/:id',productController.updateProduct);
+//details of a particular product
+Router.get('/:id', productController.getProduct);
 
 
-Router.delete('/:id',productController.removeProduct);
-    
-
-// SETTING STORAGE
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         console.log(file);
-//         cb(null, 'public/uploads');
-        
-//     },
-
-//     filename: (req, file, cb) => {
-//         console.log(file);
-//         cb(null, file.originalname)
-//     }
-// });
-
-// const imageFileFilter = (req, file, cb) => {
-//     if(!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-//         return cb(new Error('You can upload only image files!'), false);
-//     }
-//     cb(null, true);
-// };
-
-// const upload = multer({ storage: storage, fileFilter: imageFileFilter});
+//updating a product
+Router.put('/:id', productController.updateProduct);
 
 
+//deleting a product
+Router.delete('/:id', productController.removeProduct);
 
-Router.post('/create',productController.createProduct);
+
+//creating a new product
+Router.post('/', productController.createProduct);
 
 
-module.exports=Router;
+module.exports = Router;
